@@ -1,133 +1,102 @@
-# LLM Wiki Schema
+# Claude リリースノート Wiki — ルール
 
-This is a personal knowledge base maintained by an LLM. The human curates sources and asks questions. The LLM does all the writing, cross-referencing, and maintenance.
+## 目的
 
-## Directory Structure
+`raw/` に自動保存された英語のリリースノートを、**日本語で・非エンジニアにもわかりやすく**まとめたwikiを維持する。
+
+## ディレクトリ構成
 
 ```
-my_wiki/
-├── CLAUDE.md       # This file — rules and conventions for the LLM
-├── raw/            # Source documents (immutable — LLM reads, never modifies)
-├── wiki/           # LLM-generated wiki pages
-│   ├── index.md    # Master catalog of all wiki pages
-│   └── log.md      # Chronological operation log
-└── .gitignore
+my_claude_new_wiki/
+├── CLAUDE.md        # このファイル — wikiのルール
+├── raw/             # GitHub Actionsが自動保存した英語リリースノート（変更禁止）
+└── wiki/            # Claudeが作成・更新する日本語wikiページ
+    ├── index.md     # 全ページの目次
+    ├── log.md       # 更新履歴
+    ├── new-features.md       # カテゴリ: 新機能
+    ├── improvements.md       # カテゴリ: 改善・強化
+    ├── bug-fixes.md          # カテゴリ: 不具合修正
+    ├── api-changes.md        # カテゴリ: API・仕様変更
+    └── other.md              # カテゴリ: その他
 ```
 
-## Domains
+## カテゴリ定義
 
-This wiki covers two areas:
-- **Personal** — 自己改善、目標、健康、心理、習慣、日記、学びなど
-- **Business** — 仕事、プロジェクト、会議メモ、競合分析、業界知識など
+| ファイル名 | カテゴリ | 対象となる変更内容 |
+|---|---|---|
+| `new-features.md` | 新機能 | まったく新しい機能・モデル・ツールの追加 |
+| `improvements.md` | 改善・強化 | 既存機能の速度向上・精度改善・使いやすさ向上 |
+| `bug-fixes.md` | 不具合修正 | エラーや誤動作の修正 |
+| `api-changes.md` | API・仕様変更 | 開発者向けAPIの追加・変更・廃止 |
+| `other.md` | その他 | 上記に当てはまらない変更 |
 
-## Language
+1つの変更が複数カテゴリにまたがる場合は、最も主要なカテゴリに記載する。
 
-ソースの言語に合わせて柔軟に対応する。日本語ソースなら日本語で、英語ソースなら英語で書く。ページタイトルやタグも同様。混在してよい。
+## 書き方のルール
 
-## Page Types
+### 対象読者
+- **非エンジニア**を想定する
+- 専門用語は使わない。使う場合は必ずカッコ内で説明する
+- 「何が変わって、自分にとって何が嬉しいか」が伝わる書き方にする
 
-Every wiki page has YAML frontmatter:
+### 各エントリの形式
 
-```yaml
----
-title: "ページタイトル"
-type: source | entity | concept | synthesis
-tags: [tag1, tag2]
-created: YYYY-MM-DD
-updated: YYYY-MM-DD
-sources: ["raw/filename.md"]   # optional — which raw files informed this page
----
+各カテゴリページ内のエントリは以下の形式で記載する：
+
+```markdown
+### [製品名] 変更内容の一言タイトル
+**バージョン**: v2.2.0 | **日付**: 2026-05-01 | **対象**: Claude Code
+
+変更内容の説明（2〜4文。何が変わったか、どんな場面で役立つか）
 ```
 
-### source
-ソース要約ページ。raw/ 内のファイル1つにつき1ページ。元文書の要点を構造的にまとめる。
+エントリは**日付の新しい順**（上が最新）に並べる。
 
-### entity
-人物、組織、プロジェクト、ツール、場所など固有名詞のページ。複数ソースから情報を集約する。
-
-### concept
-概念、テーマ、手法、フレームワークなど抽象的なトピックのページ。
-
-### synthesis
-複数ソースや複数ページを横断した分析、比較、まとめページ。Queryの結果を保存する場合もこの型。
-
-## Link Convention
-
-Use standard Markdown links: `[ページ名](ページ名.md)`
-
-All wiki pages live in `wiki/` — links are relative within that directory.
-
-> **Note**: Obsidianへ移行する場合は `[[ページ名]]` 記法に一括変換できる。
+### 製品名の表記
+- `Claude Code` — AIコーディングツール
+- `Anthropic Python SDK` — PythonプログラムからClaudeを使うためのライブラリ
 
 ## Workflows
 
-### 1. Ingest（取り込み）
+### wiki更新（ユーザーから依頼されたとき）
 
-ユーザーが raw/ に新しいソースを追加したら、以下の手順で処理する：
+1. `raw/` 内の未処理ファイルを確認する（`wiki/log.md` と照合して処理済みか判断）
+2. 未処理ファイルを読み、変更内容をカテゴリに分類する
+3. 各カテゴリページ（`wiki/*.md`）に日本語エントリを追加する
+4. `wiki/index.md` を更新する
+5. `wiki/log.md` に処理記録を追加する
 
-1. ソースを全文読む
-2. ユーザーと要点を確認・議論する
-3. `wiki/` に source ページを作成（ファイル名はソース内容を反映した簡潔な英語スラッグ）
-4. 関連する既存の entity / concept ページを更新（なければ新規作成）
-5. `wiki/index.md` を更新
-6. `wiki/log.md` にエントリを追加
-
-**重要**: 1つのソースが複数ページに影響することがある。関連ページは漏れなく更新する。
-
-### 2. Query（質問）
-
-ユーザーが質問したら：
-
-1. `wiki/index.md` を読んで関連ページを特定
-2. 関連ページを読んで回答を組み立てる
-3. 回答にはページへのリンクを含める
-4. 価値のある回答（分析、比較、発見）は synthesis ページとしてWikiに保存するか、ユーザーに提案する
-
-### 3. Lint（健康診断）
-
-ユーザーが依頼したら、または定期的に提案する：
-
-- [ ] 矛盾する記述がないか
-- [ ] 新しいソースで古い情報が更新されていないか
-- [ ] 他のページからリンクされていない孤立ページ
-- [ ] 頻出するが専用ページがない概念やエンティティ
-- [ ] 欠落しているクロスリファレンス
-- [ ] Webで補完できそうなデータギャップ
-
-結果をユーザーに報告し、修正を提案する。
-
-## Index Format (wiki/index.md)
+### index.md の形式
 
 ```markdown
-# Wiki Index
+# Wiki 目次
 
-## Sources
-- [ページ名](ページ名.md) — 一行要約 (YYYY-MM-DD)
+最終更新: YYYY-MM-DD
 
-## Entities
-- [ページ名](ページ名.md) — 一行要約
+## カテゴリ別ページ
+- [新機能](new-features.md)
+- [改善・強化](improvements.md)
+- [不具合修正](bug-fixes.md)
+- [API・仕様変更](api-changes.md)
+- [その他](other.md)
 
-## Concepts
-- [ページ名](ページ名.md) — 一行要約
-
-## Syntheses
-- [ページ名](ページ名.md) — 一行要約
+## 収録済みリリース一覧
+| 日付 | 製品 | バージョン |
+|---|---|---|
+| 2026-05-01 | Claude Code | v2.2.0 |
 ```
 
-## Log Format (wiki/log.md)
+### log.md の形式
 
 ```markdown
-## [YYYY-MM-DD] operation | Title
-Brief description of what was done.
-Pages affected: page1.md, page2.md, ...
+## [YYYY-MM-DD] update
+処理したrawファイル: ファイル名
+追加したエントリ数: N件
+更新したページ: page1.md, page2.md
 ```
 
-Operations: `ingest`, `query`, `lint`, `update`
+## 注意事項
 
-## Guidelines
-
-- **正確性優先**: ソースに書かれていないことを推測で書かない。不明点は明示する。
-- **簡潔に**: 各ページは要点を絞る。冗長な説明より構造的な箇条書き。
-- **クロスリファレンス**: 関連ページへのリンクを積極的に張る。
-- **差分を明示**: 既存ページを更新する際は、何が変わったかをlog.mdに記録する。
-- **ユーザーと相談**: 判断に迷う場合（ページの分割/統合、重要度の判断など）はユーザーに確認する。
+- `raw/` のファイルは**絶対に変更しない**（元データとして保持）
+- 判断に迷うカテゴリはユーザーに確認する
+- 英語の技術用語をそのまま使わず、必ず日本語で説明する

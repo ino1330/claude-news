@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const LAST_CHECKED_FILE = path.join(__dirname, 'last_checked.json');
+const RAW_DIR = path.join(__dirname, 'my_claude_new_wiki', 'raw');
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
 
 const REPOS = [
@@ -29,6 +30,29 @@ function loadLastChecked() {
 
 function saveLastChecked(data) {
   fs.writeFileSync(LAST_CHECKED_FILE, JSON.stringify(data, null, 2));
+}
+
+function saveRaw(id, label, tag, release) {
+  const date = release.published_at.slice(0, 10);
+  const filename = `${date}-${id}-${tag}.md`;
+  const filepath = path.join(RAW_DIR, filename);
+
+  const content = [
+    '---',
+    `source: ${id}`,
+    `label: ${label}`,
+    `version: ${tag}`,
+    `date: ${date}`,
+    `url: ${release.html_url}`,
+    '---',
+    '',
+    `# ${label} ${tag} (${date})`,
+    '',
+    release.body ? release.body.trim() : '（リリースノートなし）',
+  ].join('\n');
+
+  fs.writeFileSync(filepath, content);
+  console.log(`[${label}] raw/ に保存: ${filename}`);
 }
 
 async function fetchLatestRelease(repo) {
@@ -71,7 +95,10 @@ async function main() {
 
     console.log(`[${label}] 新しいリリースを検出: ${tag}`);
 
-    // リリースノートの本文（最大300文字）
+    // raw/ にリリースノート全文を保存
+    saveRaw(id, label, tag, release);
+
+    // Slack通知用の本文（最大300文字）
     const body = release.body
       ? release.body.replace(/#+\s/g, '').trim().slice(0, 300)
       : '（リリースノートなし）';
