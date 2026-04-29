@@ -5,3 +5,4 @@
 .obsidian/
 .env
 .claude/
+node_modules/

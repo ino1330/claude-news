@@ -1,0 +1,12 @@
+{
+  "name": "claude-news-checker",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "check": "node check_claude_news.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0"
+  }
+}
