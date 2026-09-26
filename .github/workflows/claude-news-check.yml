@@ -31,14 +31,14 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: node check_claude_news.js
 
-      - name: last_checked.json の変更をコミット
+      - name: last_checked.json と raw/ の変更をコミット
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add last_checked.json
+          git add last_checked.json my_claude_new_wiki/raw/
           if git diff --cached --quiet; then
-            echo "last_checked.json に変更なし。コミットをスキップします。"
+            echo "last_checked.json・raw/ に変更なし。コミットをスキップします。"
           else
-            git commit -m "chore: last_checked.json を更新"
+            git commit -m "chore: last_checked.json・raw/ を更新"
             git push
           fi
