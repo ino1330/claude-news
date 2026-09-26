@@ -7,6 +7,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const LAST_CHECKED_FILE = path.join(__dirname, 'last_checked.json');
 const RAW_DIR = path.join(__dirname, 'my_claude_new_wiki', 'raw');
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
+// 未設定なら認証なし（60回/時の共有制限）で取得する
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 const REPOS = [
   {
@@ -62,6 +64,7 @@ async function fetchLatestRelease(repo) {
       headers: {
         'User-Agent': 'claude-news-checker/1.0',
         Accept: 'application/vnd.github+json',
+        ...(GITHUB_TOKEN && { Authorization: `Bearer ${GITHUB_TOKEN}` }),
       },
       timeout: 15000,
     }
