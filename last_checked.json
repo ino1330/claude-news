@@ -1,10 +1,10 @@
 {
   "claude-code": {
-    "tag": "v2.1.295",
-    "publishedAt": "2026-10-08T19:48:38Z"
+    "tag": "v2.1.296",
+    "publishedAt": "2026-10-09T19:28:59Z"
   },
   "anthropic-sdk-python": {
-    "tag": "v1.12.1",
-    "publishedAt": "2026-10-08T03:41:38Z"
+    "tag": "v1.13.0",
+    "publishedAt": "2026-10-09T15:28:52Z"
   }
 }
